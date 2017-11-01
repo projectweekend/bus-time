@@ -1,0 +1,10 @@
+region: us-east-1
+
+function_name: bus_times_collector
+handler: service.handler
+description: This function gets bus time predictions and saves them to S3 for further processing
+runtime: python3.6
+
+# Build options
+build:
+  source_directories: lib # a comma delimited list of directories in your project root that contains source to package.

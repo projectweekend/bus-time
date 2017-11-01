@@ -8,13 +8,24 @@ import boto3
 import requests
 
 
+PREDICTIONS_BUCKET = os.getenv('PREDICTIONS_BUCKET')
+assert PREDICTIONS_BUCKET
+
 CTA_BUS_API_KEY = os.getenv('CTA_BUS_API_KEY')
 assert CTA_BUS_API_KEY
 
-CTA_BUS_PREDICTION_ROUTE = 'http://www.ctabustracker.com/bustime/api/v2/getpredictions'
-
 CTA_BUS_STOP_ID = os.getenv('CTA_BUS_STOP_ID')
 assert CTA_BUS_STOP_ID
+
+CTA_BUS_PREDICTION_ROUTE = 'http://www.ctabustracker.com/bustime/api/v2/getpredictions'
+
+S3 = boto3.resource('s3')
+
+
+def log_file_key(prediction):
+    template = '{0}/{1}.json'
+    timestamp = str(int(prediction['current_time']))
+    return template.format(prediction['route_id'], timestamp)
 
 
 def to_timestamp(cta_time):
@@ -49,9 +60,8 @@ def cta_bus_predictions(stop_id):
 
 def handler(event, context):
     predictions = list(cta_bus_predictions(stop_id=CTA_BUS_STOP_ID))
-    predictions_json = json.dumps(predictions)
-    print(predictions_json)
-
-
-if __name__ == '__main__':
-    handler(event=None, context=None)
+    bucket = S3.Bucket(PREDICTIONS_BUCKET)
+    if predictions:
+        log_file = log_file_key(predictions[0])
+        predictions_json = json.dumps(predictions)
+        bucket.put_object(Key=log_file, Body=predictions_json.encode())
