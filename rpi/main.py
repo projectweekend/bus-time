@@ -1,20 +1,12 @@
 #!/usr/bin/env python
 import argparse
-from datetime import datetime
 import json
-import time
 
 import boto3
-import requests
 
-from utils import (
-    clean_prediction,
-    log_file_s3_key,
-    within_threshold
-)
+import cta
+from utils import log_file_s3_key, within_threshold
 
-
-CTA_BUS_PREDICTION_ROUTE = 'http://www.ctabustracker.com/bustime/api/v2/getpredictions'
 
 RED = 'red'
 YELLOW = 'yellow'
@@ -53,32 +45,6 @@ def s3_bucket(config):
     return s3.Bucket(config['s3_bucket'])
 
 
-def predictions_for_stop(stop_id, api_key):
-    resp = requests.get(CTA_BUS_PREDICTION_ROUTE, params={
-        'stpid': stop_id,
-        'key': api_key,
-        'format': 'json'
-    }).json()
-
-    bustime_resp = resp.get('bustime-response')
-    if bustime_resp is not None:
-        predictions = bustime_resp.get('prd')
-        if predictions is not None:
-            for p in predictions:
-                yield clean_prediction(p)
-
-
-def predictions_for_route(predictions, route_id):
-    for p in predictions:
-        if p['route_id'] == route_id:
-            yield p
-
-
-def predictions_for_stop_and_route(stop_id, route_id, api_key, **kwargs):
-    for_stop = predictions_for_stop(stop_id, api_key)
-    return predictions_for_route(for_stop, route_id)
-
-
 def display(led_status, led_pins):
     for color, status in led_status.items():
         pin = led_pins[color]
@@ -90,7 +56,7 @@ def main(cli_args):
     arrival_thresholds = config['arrival_thresholds']
     led_pins = config['led_pins']
 
-    predictions = list(predictions_for_stop_and_route(**config))
+    predictions = list(cta.predictions(**config))
     display(led_status(predictions, arrival_thresholds), led_pins)
 
     if predictions:
