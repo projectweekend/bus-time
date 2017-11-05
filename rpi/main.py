@@ -74,9 +74,9 @@ def predictions_for_route(predictions, route_id):
             yield p
 
 
-def predictions(stop_id, route_id, api_key, **kwargs):
+def predictions_for_stop_and_route(stop_id, route_id, api_key, **kwargs):
     for_stop = predictions_for_stop(stop_id, api_key)
-    return list(predictions_for_route(for_stop, route_id))
+    return predictions_for_route(for_stop, route_id)
 
 
 def display(led_status, led_pins):
@@ -90,14 +90,14 @@ def main(cli_args):
     arrival_thresholds = config['arrival_thresholds']
     led_pins = config['led_pins']
 
-    predictions_output = predictions(**config)
-    display(led_status(predictions_output, arrival_thresholds), led_pins)
+    predictions = list(predictions_for_stop_and_route(**config))
+    display(led_status(predictions, arrival_thresholds), led_pins)
 
     if predictions:
         bucket = s3_bucket(config)
         kwargs = {
-            'Body': json.dumps(predictions_output).encode(),
-            'Key': log_file_s3_key(prediction=predictions_output[0])
+            'Body': json.dumps(predictions).encode(),
+            'Key': log_file_s3_key(prediction=predictions[0])
         }
         bucket.put_object(**kwargs)
 
