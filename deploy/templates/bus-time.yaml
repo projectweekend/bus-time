@@ -3,3 +3,17 @@ Resources:
         Type: "AWS::S3::Bucket"
         Properties:
             BucketName: "pw-bus-time-predictions"
+    PwBusTimePredictionLoggingUser:
+        Type: "AWS::IAM::User"
+        Properties:
+            UserName: "PwBusTimePredictionS3Logging"
+            Policies:
+                - PolicyName: "PwBusTimeWriteToPredictionsS3Bucket"
+                  PolicyDocument:
+                      Version: "2012-10-17"
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                - "s3:PutObject"
+                            Resource:
+                                - !Join ["/", [!GetAtt PwBusTimePredictionsBucket.Arn, "*"]]
