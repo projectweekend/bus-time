@@ -17,3 +17,12 @@ Resources:
                                 - "s3:PutObject"
                             Resource:
                                 - !Join ["/", [!GetAtt PwBusTimePredictionsBucket.Arn, "*"]]
+    PwBusTimePredictionLoggingAccessKey:
+        Type: "AWS::IAM::AccessKey"
+        Properties:
+            UserName: !Ref PwBusTimePredictionLoggingUser
+Outputs:
+    AccessKey:
+        Value: !Ref PwBusTimePredictionLoggingAccessKey
+    SecretKey:
+        Value: !GetAtt PwBusTimePredictionLoggingAccessKey.SecretAccessKey
