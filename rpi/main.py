@@ -10,6 +10,10 @@ import requests
 
 CTA_BUS_PREDICTION_ROUTE = 'http://www.ctabustracker.com/bustime/api/v2/getpredictions'
 
+RED = 'red'
+YELLOW = 'yellow'
+GREEN = 'green'
+
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -63,23 +67,35 @@ def cta_bus_predictions(stop_id, api_key, **kwargs):
                 }
 
 
-def show_status(predictions):
+def led_status(predictions):
+    status = {
+        RED: 0,
+        YELLOW: 0,
+        GREEN: 0
+    }
     for p in predictions:
         if p['minutes_to_arrival'] >= 5 and  p['minutes_to_arrival'] <= 7:
-            print('GREEN LIGHT')
+            status[GREEN] = 1
         elif p['minutes_to_arrival'] >= 10 and  p['minutes_to_arrival'] <= 12:
-            print('YELLOW')
+            status[YELLOW] = 1
         else:
-            print('RED')
-        yield p
+            status[RED] = 1
+    return status
+
+
+def display(led_status, led_pins):
+    for color, status in led_status.items():
+        pin = led_pins[color]
+        print('Set {0} LED at pin {1} to: {2}'.format(color, pin, status))
 
 
 def main(cli_args):
     config = load_config(cli_args.config_file)
-    predictions = list(show_status(cta_bus_predictions(**config)))
+    predictions = list(cta_bus_predictions(**config))
+    display(led_status(predictions), config['led_pins'])
+
     if predictions:
         bucket = s3_bucket(config)
-
         kwargs = {
             'Body': json.dumps(predictions).encode(),
             'Key': log_file_s3_key(prediction=predictions[0])
