@@ -7,6 +7,12 @@ import time
 import boto3
 import requests
 
+from utils import (
+    clean_prediction,
+    log_file_s3_key,
+    within_threshold
+)
+
 
 CTA_BUS_PREDICTION_ROUTE = 'http://www.ctabustracker.com/bustime/api/v2/getpredictions'
 
@@ -26,15 +32,20 @@ def load_config(config_file):
         return json.load(f)
 
 
-def log_file_s3_key(prediction):
-    template = '{0}/{1}.json'
-    timestamp = str(int(prediction['current_time']))
-    return template.format(prediction['route_id'], timestamp)
-
-
-def to_timestamp(cta_time):
-    dt = datetime.strptime(cta_time, "%Y%m%d %H:%M")
-    return time.mktime(dt.timetuple())
+def led_status(predictions, arrival_thresholds):
+    status = {
+        RED: 0,
+        YELLOW: 0,
+        GREEN: 0
+    }
+    for p in predictions:
+        if within_threshold(p, arrival_thresholds[GREEN]):
+            status[GREEN] = 1
+        elif within_threshold(p, arrival_thresholds[YELLOW]):
+            status[YELLOW] = 1
+        else:
+            status[RED] = 1
+    return status
 
 
 def s3_bucket(config):
@@ -42,7 +53,7 @@ def s3_bucket(config):
     return s3.Bucket(config['s3_bucket'])
 
 
-def cta_bus_predictions(stop_id, api_key, **kwargs):
+def cta_bus_predictions(stop_id, route_id, api_key, **kwargs):
     resp = requests.get(CTA_BUS_PREDICTION_ROUTE, params={
         'stpid': stop_id,
         'key': api_key,
@@ -54,33 +65,8 @@ def cta_bus_predictions(stop_id, api_key, **kwargs):
         predictions = bustime_resp.get('prd')
         if predictions is not None:
             for p in predictions:
-                current_time = to_timestamp(p['tmstmp'])
-                arrival_time = to_timestamp(p['prdtm'])
-                yield {
-                    'stop_id': p['stpid'],
-                    'route_id': p['rt'],
-                    'route_direction': p['rtdir'],
-                    'vehicle_id': p['vid'],
-                    'current_time': current_time,
-                    'arrival_time': arrival_time,
-                    'minutes_to_arrival': (arrival_time - current_time) / 60
-                }
-
-
-def led_status(predictions):
-    status = {
-        RED: 0,
-        YELLOW: 0,
-        GREEN: 0
-    }
-    for p in predictions:
-        if p['minutes_to_arrival'] >= 5 and  p['minutes_to_arrival'] <= 7:
-            status[GREEN] = 1
-        elif p['minutes_to_arrival'] >= 10 and  p['minutes_to_arrival'] <= 12:
-            status[YELLOW] = 1
-        else:
-            status[RED] = 1
-    return status
+                if p['rt'] == route_id:
+                    yield clean_prediction(p)
 
 
 def display(led_status, led_pins):
@@ -91,8 +77,11 @@ def display(led_status, led_pins):
 
 def main(cli_args):
     config = load_config(cli_args.config_file)
+    arrival_thresholds = config['arrival_thresholds']
+    led_pins = config['led_pins']
+
     predictions = list(cta_bus_predictions(**config))
-    display(led_status(predictions), config['led_pins'])
+    display(led_status(predictions, arrival_thresholds), led_pins)
 
     if predictions:
         bucket = s3_bucket(config)
