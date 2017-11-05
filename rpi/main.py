@@ -35,7 +35,7 @@ def to_timestamp(cta_time):
 
 def s3_bucket(config):
     s3 = boto3.resource('s3', **config['aws'])
-    return s3.Bucket(config.s3_bucket)
+    return s3.Bucket(config['s3_bucket'])
 
 
 def cta_bus_predictions(stop_id, api_key, **kwargs):
