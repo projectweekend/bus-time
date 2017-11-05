@@ -75,8 +75,6 @@ def show_status(predictions):
 
 
 def main(cli_args):
-
-
     config = load_config(cli_args.config_file)
     predictions = list(show_status(cta_bus_predictions(**config)))
     if predictions:
