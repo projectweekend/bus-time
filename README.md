@@ -36,5 +36,10 @@
 $ rsync -r rpi/ pi@penelopi.local:bus_time_alert/
 $ ssh pi@penelopi.local
 $ cd bus_time_alert
-$ pip install -r requirements.txt
+$ sudo pip3 install -r requirements.txt
+```
+
+## Schedule minute cron job on Raspberry Pi
+```
+* * * * * python3 bus_time_alert/main.py bus_time_alert/config.json
 ```
