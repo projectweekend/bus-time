@@ -29,3 +29,12 @@
     }    
 }
 ```
+
+
+## Deploy code to Raspberry Pi
+```bash
+$ rsync -r rpi/ pi@penelopi.local:bus_time_alert/
+$ ssh pi@penelopi.local
+$ cd bus_time_alert
+$ pip install -r requirements.txt
+```
