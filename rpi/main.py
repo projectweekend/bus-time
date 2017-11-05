@@ -65,9 +65,13 @@ def cta_bus_predictions(stop_id, route_id, api_key, **kwargs):
         predictions = bustime_resp.get('prd')
         if predictions is not None:
             for p in predictions:
-                if p['rt'] == route_id:
-                    yield clean_prediction(p)
+                yield clean_prediction(p)
 
+
+def for_route(predictions, route_id, **kwargs):
+    for p in predictions:
+        if p['route_id'] == route_id:
+            yield p
 
 def display(led_status, led_pins):
     for color, status in led_status.items():
@@ -80,7 +84,9 @@ def main(cli_args):
     arrival_thresholds = config['arrival_thresholds']
     led_pins = config['led_pins']
 
-    predictions = list(cta_bus_predictions(**config))
+    predictions_for_stop = cta_bus_predictions(**config)
+    predictions_for_stop_and_route = for_route(predictions_for_stop, **config)
+    predictions = list(predictions_for_stop_and_route)
     display(led_status(predictions, arrival_thresholds), led_pins)
 
     if predictions:
