@@ -1,0 +1,20 @@
+---
+- hosts: penelopi.local
+  remote_user: pi
+  vars_files:
+      - secrets
+  tasks:
+    - name: Upgrade all packages to the latest version
+      apt:
+          name: "*"
+          state: latest
+      become: true
+    - name: Add config file for 126 Racine and Jackson bus stop
+      template:
+          src: config/126-racine-and-jackson.json.j2
+          dest: /home/pi/bus_time_alert/126-racine-and-jackson.json
+    - name: Install Python packages
+      pip:
+          executable: pip3
+          requirements: /home/pi/bus_time_alert/requirements.txt
+      become: true
