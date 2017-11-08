@@ -100,6 +100,6 @@ ENV/
 # mypy
 .mypy_cache/
 
-rpi/config.json
+rpi/config/
 venv_deploy
 venv_rpi

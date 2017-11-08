@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 import argparse
 import json
+from time import sleep
 
 import boto3
+from gpiozero import LED
 
 import cta
 from utils import log_file_s3_key, within_threshold
@@ -22,6 +24,10 @@ def get_args():
 def load_config(config_file):
     with open(config_file, 'r') as f:
         return json.load(f)
+
+
+def load_leds(config):
+    return {color: LED(pin) for color, pin in config['led_pins'].items()}
 
 
 def led_status(predictions, arrival_thresholds):
@@ -45,28 +51,30 @@ def s3_bucket(config):
     return s3.Bucket(config['s3_bucket'])
 
 
-def display(led_status, led_pins):
+def display(led_status, leds):
     for color, status in led_status.items():
-        pin = led_pins[color]
-        print('Set {0} LED at pin {1} to: {2}'.format(color, pin, status))
+        if status:
+            leds[color].on()
+        else:
+            leds[color].off()
 
 
 def main(cli_args):
     config = load_config(cli_args.config_file)
     arrival_thresholds = config['arrival_thresholds']
-    led_pins = config['led_pins']
+    leds = load_leds(config)
+    while True:
+        predictions = list(cta.predictions(**config))
+        display(led_status(predictions, arrival_thresholds), leds)
 
-    predictions = list(cta.predictions(**config))
-    display(led_status(predictions, arrival_thresholds), led_pins)
-
-    if predictions:
-        bucket = s3_bucket(config)
-        kwargs = {
-            'Body': json.dumps(predictions).encode(),
-            'Key': log_file_s3_key(prediction=predictions[0])
-        }
-        bucket.put_object(**kwargs)
-
+        if predictions:
+            bucket = s3_bucket(config)
+            kwargs = {
+                'Body': json.dumps(predictions).encode(),
+                'Key': log_file_s3_key(prediction=predictions[0])
+            }
+            bucket.put_object(**kwargs)
+        sleep(60)
 
 
 if __name__ == '__main__':
