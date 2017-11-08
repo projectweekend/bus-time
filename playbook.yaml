@@ -9,6 +9,14 @@
           name: "*"
           state: latest
       become: true
+    - name: Install Python 3
+      apt:
+          name: python3
+      become: true
+    - name: Install Pip 3
+      apt:
+          name: python3-pip
+      become: true
     - name: Add config file for 126 Racine and Jackson bus stop
       template:
           src: config/126-racine-and-jackson.json.j2
