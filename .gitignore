@@ -104,3 +104,5 @@ rpi/config/
 venv_ansible
 venv_deploy
 venv_rpi
+
+.secrets_pw
