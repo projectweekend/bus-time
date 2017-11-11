@@ -31,7 +31,11 @@
 ```
 
 
-## Deploy code to Raspberry Pi
+## Deploy to Raspberry Pi
+```bash
+$ cd playbooks/
+$ ansible-playbook raspberrypi.yaml
+```
 ```bash
 $ rsync -r rpi/ pi@penelopi.local:bus_time_alert/
 $ ssh pi@penelopi.local
