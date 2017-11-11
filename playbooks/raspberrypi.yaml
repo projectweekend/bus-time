@@ -2,23 +2,41 @@
 - name: "Deploy bus_time_alert to Raspberry Pi"
   hosts: penelopi.local
   remote_user: pi
-  become: true
   tasks:
     - name: "Upgrade all packages to the latest version"
+      become: true
       apt:
-          name: "*"
-          state: latest
+        name: "*"
+        state: latest
     - name: "Install Python 3"
+      become: true
       apt:
-          name: python3
+        name: python3
     - name: "Install Pip 3"
+      become: true
       apt:
-          name: python3-pip
-  - name: "Install bus_time_alert Python packages"
-    pip:
+        name: python3-pip
+    - name: "Copy source code"
+      copy:
+        src: ../bus_time_alert
+        dest: /home/pi
+    - name: "Install bus_time_alert Python packages"
+      become: true
+      pip:
         executable: pip3
         requirements: /home/pi/bus_time_alert/requirements.txt
     - name: "Add config file for 126 Racine and Jackson bus stop"
       template:
-          src: templates/126-racine-and-jackson.json.j2
-          dest: /home/pi/bus_time_alert/126-racine-and-jackson.json
+        src: templates/126-racine-and-jackson.json.j2
+        dest: /home/pi/bus_time_alert/126-racine-and-jackson.json
+    - name: "Copy systemd config for 126 Racine and Jackson bus stop"
+      become: true
+      copy:
+        src: files/bta_126_racine_jackson.service
+        dest: /etc/systemd/system/bta_126_racine_jackson.service
+    - name: "Bounce systemd service for 126 Racine and Jackson bus stop"
+      become: true
+      systemd:
+        name: bta_126_racine_jackson
+        enabled: yes
+        state: restarted

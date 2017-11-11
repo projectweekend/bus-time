@@ -1,0 +1,12 @@
+[Unit]
+Description=Bus Time Alert for 126 Jackson and Racine
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/pi
+ExecStart=/usr/bin/python3 bus_time_alert/main.py bus_time_alert/config/126-racine-and-jackson.json
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
