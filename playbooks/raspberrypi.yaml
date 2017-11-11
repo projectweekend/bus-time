@@ -39,4 +39,5 @@
       systemd:
         name: bta_126_racine_jackson
         enabled: yes
+        daemon_reload: yes
         state: restarted
