@@ -2,8 +2,6 @@
 - hosts: penelopi.local
   remote_user: pi
   become: true
-  vars_files:
-      - secrets
   tasks:
     - name: Upgrade all packages to the latest version
       apt:
