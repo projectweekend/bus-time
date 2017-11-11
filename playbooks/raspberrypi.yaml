@@ -1,6 +1,7 @@
 ---
 - hosts: penelopi.local
   remote_user: pi
+  become: true
   vars_files:
       - secrets
   tasks:
@@ -8,21 +9,17 @@
       apt:
           name: "*"
           state: latest
-      become: true
     - name: Install Python 3
       apt:
           name: python3
-      become: true
     - name: Install Pip 3
       apt:
           name: python3-pip
-      become: true
     - name: Add config file for 126 Racine and Jackson bus stop
       template:
-          src: config/126-racine-and-jackson.json.j2
+          src: templates/126-racine-and-jackson.json.j2
           dest: /home/pi/bus_time_alert/126-racine-and-jackson.json
     - name: Install Python packages
       pip:
           executable: pip3
           requirements: /home/pi/bus_time_alert/requirements.txt
-      become: true
