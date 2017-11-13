@@ -5,6 +5,15 @@
   vars_files:
       - group_vars/bus_stops.yaml
   tasks:
+    - name: launch ansible cloudformation example
+      cloudformation:
+        stack_name: bus_time_alert
+        state: present
+        region: us-east-1
+        template: templates/cloudformation.yaml.j2
+      hosts: localhost
+      connection: local
+      register: aws_result
     - name: Install system level dependencies
       become: true
       apt:

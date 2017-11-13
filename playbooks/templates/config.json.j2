@@ -5,8 +5,8 @@
     "s3_bucket": "{{ aws_s3_bucket_name }}",
     "aws": {
         "region_name": "us-east-1",
-        "aws_access_key_id": "{{ aws_access_key_id }}",
-        "aws_secret_access_key": "{{ aws_secret_access_key }}"
+        "aws_access_key_id": "{{ aws_result.stack_outputs['AccessKey'] }}",
+        "aws_secret_access_key": "{{ aws_result.stack_outputs['SecretKey'] }}"
     },
     "led_pins": {
         "red": {{ item.rpi_red_pin }},
