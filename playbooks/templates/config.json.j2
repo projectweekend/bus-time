@@ -1,0 +1,26 @@
+{
+    "api_key": "{{ cta_api_key }}",
+    "stop_id": "{{ item.cta_stop_id }}",
+    "route_id": "{{ item.cta_route_id }}",
+    "s3_bucket": "{{ aws_s3_bucket_name }}",
+    "aws": {
+        "region_name": "us-east-1",
+        "aws_access_key_id": "{{ aws_access_key_id }}",
+        "aws_secret_access_key": "{{ aws_secret_access_key }}"
+    },
+    "led_pins": {
+        "red": {{ item.rpi_red_pin }},
+        "yellow": {{ item.rpi_yellow_pin }},
+        "green": {{ item.rpi_green_pin }}
+    },
+    "arrival_thresholds": {
+        "yellow": {
+            "min": {{ item.rpi_yellow_min }},
+            "max": {{ item.rpi_yellow_max }}
+        },
+        "green": {
+            "min": {{ item.rpi_green_min }},
+            "max": {{ item.rpi_green_max }}
+        }
+    }
+}
