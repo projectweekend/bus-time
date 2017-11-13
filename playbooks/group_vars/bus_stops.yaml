@@ -6,7 +6,7 @@ bus_stops:
       rpi_red_pin: 5
       rpi_yellow_pin: 6
       rpi_green_pin: 13
-      rpi_yellow_min: 9
-      rpi_yellow_max: 12
+      rpi_yellow_min: 8
+      rpi_yellow_max: 11
       rpi_green_min: 4
-      rpi_green_max: 7
+      rpi_green_max: 6
