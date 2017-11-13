@@ -1,4 +1,0 @@
-project_code: "bustime"
-profile: "default"
-region: "us-east-1"
-template_bucket_name: "projectweekend-cloudformation-templates"

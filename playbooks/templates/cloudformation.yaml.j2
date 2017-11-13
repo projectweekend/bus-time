@@ -1,8 +1,11 @@
+Parameters:
+    S3BucketName:
+        Type: String
 Resources:
     PwBusTimePredictionsBucket:
         Type: "AWS::S3::Bucket"
         Properties:
-            BucketName: "{{ aws_s3_bucket_name }}"
+            BucketName: !Ref S3BucketName
     PwBusTimePredictionLoggingUser:
         Type: "AWS::IAM::User"
         Properties:
