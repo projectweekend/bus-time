@@ -1,6 +1,6 @@
 ---
 bus_stops:
-    - name: "126-racine-and-jackson"
+    - name: "126_racine_and_jackson"
       cta_stop_id: "59"
       cta_route_id: "126"
       rpi_red_pin: 5
