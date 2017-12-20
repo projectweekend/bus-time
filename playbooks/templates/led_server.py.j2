@@ -1,0 +1,11 @@
+from gpiosvr import led
+from gpiozero import LED
+
+
+pin_config = (
+  ('red', {{ item.rpi_red_pin }}),
+  ('yellow', {{ item.rpi_yellow_pin }}),
+  ('green', {{ item.rpi_green_pin }}),
+)
+
+application = led.create_server(pin_config=pin_config, led_factory=LED)

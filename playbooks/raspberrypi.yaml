@@ -42,6 +42,11 @@
         src: templates/config.json.j2
         dest: "/home/pi/bus_time_alert/{{ item.name }}.json"
       with_items: "{{ bus_stops }}"
+    - name: Add led_server.py
+      template:
+        src: templates/led_server.py.j2
+        dest: "/home/pi/bus_time_alert/led_server_{{ item.name }}.py"
+      with_items: "{{ bus_stops }}"
     - name: Copy systemd config files
       become: true
       template:
