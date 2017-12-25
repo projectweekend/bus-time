@@ -53,10 +53,8 @@ def s3_bucket(config):
 
 def display(led_status, leds):
     for color, status in led_status.items():
-        if status:
-            leds[color].on()
-        else:
-            leds[color].off()
+        led = leds[color]
+        led.on() is status else led.off()
 
 
 def main(cli_args):
