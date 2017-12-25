@@ -4,7 +4,7 @@ import json
 from time import sleep
 
 import boto3
-from gpiozero import LED
+import requests
 
 import cta
 from utils import log_file_s3_key, within_threshold
@@ -24,10 +24,6 @@ def get_args():
 def load_config(config_file):
     with open(config_file, 'r') as f:
         return json.load(f)
-
-
-def load_leds(config):
-    return {color: LED(pin) for color, pin in config['led_pins'].items()}
 
 
 def led_status(predictions, arrival_thresholds):
@@ -51,19 +47,19 @@ def s3_bucket(config):
     return s3.Bucket(config['s3_bucket'])
 
 
-def display(led_status, leds):
+def display(led_status):
+    led_server_url = 'http://127.0.0.1:8000/{0}/{1}'
     for color, status in led_status.items():
-        led = leds[color]
-        led.on() is status else led.off()
+        action = 'on' if status else 'off'
+        requests.post(led_server_url.format(color, action))
 
 
 def main(cli_args):
     config = load_config(cli_args.config_file)
     arrival_thresholds = config['arrival_thresholds']
-    leds = load_leds(config)
     while True:
         predictions = list(cta.predictions(**config))
-        display(led_status(predictions, arrival_thresholds), leds)
+        display(led_status(predictions, arrival_thresholds))
 
         if predictions:
             bucket = s3_bucket(config)
