@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/pi
-ExecStart=/usr/bin/gunicorn -b 127.0.0.1:8000 bus_time_alert/led_server_{{ item.name }}
+WorkingDirectory=/home/pi/bus_time_alert
+ExecStart=/usr/local/bin/gunicorn -b 127.0.0.1:8000 led_server_{{ item.name }}
 Restart=always
 
 [Install]
