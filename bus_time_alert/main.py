@@ -13,6 +13,7 @@ from utils import log_file_s3_key, within_threshold
 RED = 'red'
 YELLOW = 'yellow'
 GREEN = 'green'
+ONE_MINUTE = 60
 
 
 def get_args():
@@ -68,7 +69,7 @@ def main(cli_args):
                 'Key': log_file_s3_key(prediction=predictions[0])
             }
             bucket.put_object(**kwargs)
-        sleep(60)
+        sleep(ONE_MINUTE)
 
 
 if __name__ == '__main__':
